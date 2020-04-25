@@ -25,7 +25,7 @@ while True:
     
     if level in number_range.keys():
       print(f"Allright, the number is between 1 and {number_range[level]}")
-      goal = random.randint(1, number_range[level] + 1)
+      goal = random.randint(1, number_range[level])
       print(guess(goal))
       ans = input('Wanna try again?(y/n)\n> ')
       if ans == 'n':
