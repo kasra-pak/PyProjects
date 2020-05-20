@@ -1,4 +1,5 @@
 import tkinter as tk
+from math import sqrt
 
 class Calculator(tk.Tk):
     def __init__(self):
@@ -24,15 +25,14 @@ class Calculator(tk.Tk):
 
         ## digits
         self.disp_number = tk.StringVar()
-        self.disp_number.set('0.12345678')
-        self.lbl_operands = tk.Label(self.frm_disp, textvariable=self.disp_number, bg='lightgrey', anchor='e', font=('system 10 points', 30))
-        self.lbl_operands.grid(row=0, column=1, sticky='news', rowspan=2, columnspan=10)
+        self.disp_number.set('0')
+        self.lbl_operand = tk.Label(self.frm_disp, textvariable=self.disp_number, bg='lightgrey', anchor='e', font=('system 10 points', 30))
+        self.lbl_operand.grid(row=0, column=1, sticky='news', rowspan=2, columnspan=10)
 
         ## operator
-        self.disp_operator = tk.StringVar()
-        self.disp_operator.set('+')
-        self.lbl_operators = tk.Label(self.frm_disp, textvariable=self.disp_operator, bg='grey', anchor='e', font=80)
-        self.lbl_operators.grid(row=0, column=11, sticky='news', rowspan=2)
+        self.lbl_operator = tk.Label(self.frm_disp, text=' ', bg='grey', anchor='e', font=80)
+        self.lbl_operator.grid(row=0, column=11, sticky='news', rowspan=2)
+        self.operator = None
 
 
         # Keypad of calculator
@@ -70,6 +70,189 @@ class Calculator(tk.Tk):
 
                 keypad_buttons.append(btn)
 
+        # just unpacking each button object from the list; don't panic :D
+        self.btn_off, \
+        self.btn_mem_read, \
+        self.btn_mem_sub, \
+        self.btn_mem_add, \
+        self.btn_divide, \
+        self.btn_percent, \
+        self.btn_seven, \
+        self.btn_eight, \
+        self.btn_nine, \
+        self.btn_multiply, \
+        self.btn_sqrt, \
+        self.btn_four, \
+        self.btn_five, \
+        self.btn_six, \
+        self.btn_subtract, \
+        self.btn_clear, \
+        self.btn_one, \
+        self.btn_two, \
+        self.btn_three, \
+        self.btn_add, \
+        self.btn_all_clear, \
+        self.btn_zero, \
+        self.btn_dot, \
+        self.btn_equal = keypad_buttons
+
+        # this flag would turn to True when ever you print calculation results on the screen by pressing '='
+        self.sth_on_screen_flag = False
+        # temp_operand stores the first_operand in case the user doesn't enter the second_operand
+        self.first_operand, self.second_operand , self.temp_operand= 0, None, None
+
+        self.btn_zero.configure(command=lambda :self.enter_number(0))
+        self.btn_one.configure(command=lambda :self.enter_number(1))
+        self.btn_two.configure(command=lambda :self.enter_number(2))
+        self.btn_three.configure(command=lambda :self.enter_number(3))
+        self.btn_four.configure(command=lambda :self.enter_number(4))
+        self.btn_five.configure(command=lambda :self.enter_number(5))
+        self.btn_six.configure(command=lambda :self.enter_number(6))
+        self.btn_seven.configure(command=lambda :self.enter_number(7))
+        self.btn_eight.configure(command=lambda :self.enter_number(8))
+        self.btn_nine.configure(command=lambda :self.enter_number(9))
+
+        self.btn_add.configure(command=self.add)
+        self.btn_subtract.configure(command=self.subtract)
+        self.btn_multiply.configure(command=self.multiply)
+        self.btn_divide.configure(command=self.divide)
+        self.btn_sqrt.configure(command=self.square_root)
+        # self.btn_percent.configure(command=self.)
+        self.btn_equal.configure(command=self.equal)
+
+        self.btn_off.configure(command=self.close_window)
+        # self.btn_mem_read.configure(command=self.)
+        # self.btn_mem_sub.configure(command=self.)
+        # self.btn_mem_add.configure(command=self.)
+        self.btn_clear.configure(command=self.clear)
+        self.btn_all_clear.configure(command=self.all_clear)
+        self.btn_dot.configure(command=self.dot)
+
+
+    def close_window(self):
+        self.destroy()
+
+    def all_clear(self):
+        self.disp_number.set('0')
+        self.lbl_operator.configure(text=' ')
+        self.first_operand, self.second_operand, self.temp_operand = 0, None, None
+        self.sth_on_screen_flag = False
+        self.operator = None
+
+    def clear(self):
+        self.disp_number.set('0')
+        self.second_operand = None
+        self.sth_on_screen_flag = False
+
+    def fetch_screen(self):
+        """reads the current number from the display"""
+        try:
+            return int(self.disp_number.get())
+        except ValueError:
+            return self.disp_number.get()
+
+    def something(self, num):
+        try:
+            return int(str(self.fetch_screen()).lstrip('0') + str(num))
+        except ValueError:
+            return str(self.fetch_screen()).lstrip('0') + str(num)
+
+    def enter_number(self, num):
+        if self.lbl_operator['text'] == ' ':
+            if self.sth_on_screen_flag:
+                self.disp_number.set(num)
+                self.first_operand = self.fetch_screen()
+                self.sth_on_screen_flag = False
+            else:
+                self.disp_number.set(self.something(num))
+                self.first_operand = self.fetch_screen()
+        else:
+            if self.sth_on_screen_flag:
+                self.first_operand = self.fetch_screen()
+                self.disp_number.set(num)
+                self.second_operand = self.fetch_screen()
+                self.sth_on_screen_flag = False
+            else:
+                self.disp_number.set(self.something(num))
+                if not self.second_operand:
+                    self.second_operand = num
+                    self.disp_number.set(str(num))
+                else:
+                    self.second_operand = int(str(self.second_operand).lstrip('0') + str(num))
+                    self.disp_number.set(str(self.second_operand))
+
+    def dot(self):
+        if '.' not in str(self.fetch_screen()):
+            self.disp_number.set(self.disp_number.get() + '.')
+        else:
+            pass
+
+    def operate(self, opr):
+        if not self.second_operand:
+            self.operator = opr
+            if opr == '*' or opr == '/':
+                self.temp_operand = self.first_operand
+            else:
+                self.temp_operand = 0
+        else:
+            # this part covers continuous operations like: 3+3*2
+            if self.second_operand:
+                self.first_operand = eval(f"{self.first_operand} {self.operator} {self.second_operand}")
+                self.operator = opr
+                self.disp_number.set(str(self.first_operand))
+                self.second_operand = None
+                self.sth_on_screen_flag = True
+            else:
+                self.operator = opr
+
+
+    def add(self):
+        self.lbl_operator.configure(text='+')
+        self.operate('+')
+
+    def subtract(self):
+        self.lbl_operator.configure(text='-')
+        self.operate('-')
+
+    def multiply(self):
+        self.lbl_operator.configure(text='×')
+        self.operate('*')
+
+    def divide(self):
+        self.lbl_operator.configure(text='÷')
+        self.operate('/')
+
+    def square_root(self):
+        if self.first_operand:
+            self.first_operand = sqrt(self.first_operand)
+            # as long as possible keep the results as integers otherwise show them as floating points
+            try:
+                self.disp_number.set(int(str(self.first_operand)))
+            # covers floating point results
+            except ValueError:
+                self.disp_number.set(str(self.first_operand))
+        else:
+            pass
+
+    def equal(self):
+        try:
+            if self.second_operand:
+                self.disp_number.set(str(eval(f"{self.first_operand} {self.operator} {self.second_operand}")))
+                self.lbl_operator.configure(text=' ')
+                self.first_operand = self.disp_number.get()
+                self.second_operand = None
+                self.sth_on_screen_flag = True
+            else:
+                self.disp_number.set(str(eval(f"{self.first_operand} {self.operator} {self.temp_operand}")))
+                self.lbl_operator.configure(text=' ')
+                self.first_operand = self.disp_number.get()
+                self.second_operand = None
+                self.sth_on_screen_flag = True
+
+
+        # when user just press "=" button with no operands
+        except SyntaxError:
+            self.disp_number.set(self.first_operand or 0)
 
 
 if __name__ == '__main__':
