@@ -1,5 +1,8 @@
 import tkinter as tk
 from math import sqrt
+from decimal import Decimal
+from decimal import InvalidOperation
+
 
 class Calculator(tk.Tk):
     def __init__(self):
@@ -151,9 +154,17 @@ class Calculator(tk.Tk):
         except ValueError:
             return self.disp_number.get()
 
+    def update_screen(self):
+        pass
+
     def something(self, num):
         try:
-            return int(str(self.fetch_screen()).lstrip('0') + str(num))
+            # for floating points
+            if '.' in str(self.fetch_screen()):
+                return str(self.fetch_screen()) + str(num)
+            # for integers
+            else:
+                return int(str(self.fetch_screen()).lstrip('0') + str(num))
         except ValueError:
             return str(self.fetch_screen()).lstrip('0') + str(num)
 
@@ -173,17 +184,25 @@ class Calculator(tk.Tk):
                 self.second_operand = self.fetch_screen()
                 self.sth_on_screen_flag = False
             else:
-                self.disp_number.set(self.something(num))
-                if not self.second_operand:
+                if self.second_operand == None:
+                    self.disp_number.set(self.something(num))
                     self.second_operand = num
                     self.disp_number.set(str(num))
                 else:
-                    self.second_operand = int(str(self.second_operand).lstrip('0') + str(num))
-                    self.disp_number.set(str(self.second_operand))
+                    # self.second_operand = int(str(self.second_operand).lstrip('0') + str(num))
+                    number = str(self.something(num))
+                    if '.' in number:
+                        self.second_operand = number
+                        self.disp_number.set(str(self.second_operand))
+                        self.second_operand = float(self.second_operand)
+                    else:
+                        self.second_operand = number
+                        self.disp_number.set(str(self.second_operand))
+                        self.second_operand = int(self.second_operand)
 
     def dot(self):
         if '.' not in str(self.fetch_screen()):
-            self.disp_number.set(self.disp_number.get() + '.')
+            self.disp_number.set(str(self.fetch_screen()) + '.')
         else:
             pass
 
@@ -197,7 +216,9 @@ class Calculator(tk.Tk):
         else:
             # this part covers continuous operations like: 3+3*2
             if self.second_operand:
-                self.first_operand = eval(f"{self.first_operand} {self.operator} {self.second_operand}")
+                first_operand_temp = Decimal(str(self.first_operand))
+                second_operand_temp = Decimal(str(self.second_operand))
+                self.first_operand = eval(f"(first_operand_temp {self.operator} second_operand_temp)")
                 self.operator = opr
                 self.disp_number.set(str(self.first_operand))
                 self.second_operand = None
@@ -237,13 +258,17 @@ class Calculator(tk.Tk):
     def equal(self):
         try:
             if self.second_operand:
-                self.disp_number.set(str(eval(f"{self.first_operand} {self.operator} {self.second_operand}")))
+                first_operand_temp = Decimal(str(self.first_operand))
+                second_operand_temp = Decimal(str(self.second_operand))
+                self.disp_number.set(str(eval(f"(first_operand_temp {self.operator} second_operand_temp)")))
                 self.lbl_operator.configure(text=' ')
                 self.first_operand = self.disp_number.get()
                 self.second_operand = None
                 self.sth_on_screen_flag = True
             else:
-                self.disp_number.set(str(eval(f"{self.first_operand} {self.operator} {self.temp_operand}")))
+                first_operand_temp = Decimal(str(self.first_operand))
+                temp_operand_temp = Decimal(str(self.temp_operand))
+                self.disp_number.set(str(eval(f"first_operand_temp {self.operator} temp_operand_temp")))
                 self.lbl_operator.configure(text=' ')
                 self.first_operand = self.disp_number.get()
                 self.second_operand = None
@@ -251,7 +276,7 @@ class Calculator(tk.Tk):
 
 
         # when user just press "=" button with no operands
-        except SyntaxError:
+        except InvalidOperation:
             self.disp_number.set(self.first_operand or 0)
 
 
