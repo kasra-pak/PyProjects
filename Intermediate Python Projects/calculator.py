@@ -154,10 +154,7 @@ class Calculator(tk.Tk):
         except ValueError:
             return self.disp_number.get()
 
-    def update_screen(self):
-        pass
-
-    def something(self, num):
+    def add_digit(self, num):
         try:
             # for floating points
             if '.' in str(self.fetch_screen()):
@@ -175,7 +172,7 @@ class Calculator(tk.Tk):
                 self.first_operand = self.fetch_screen()
                 self.sth_on_screen_flag = False
             else:
-                self.disp_number.set(self.something(num))
+                self.disp_number.set(self.add_digit(num))
                 self.first_operand = self.fetch_screen()
         else:
             if self.sth_on_screen_flag:
@@ -185,12 +182,12 @@ class Calculator(tk.Tk):
                 self.sth_on_screen_flag = False
             else:
                 if self.second_operand == None:
-                    self.disp_number.set(self.something(num))
+                    self.disp_number.set(self.add_digit(num))
                     self.second_operand = num
                     self.disp_number.set(str(num))
                 else:
                     # self.second_operand = int(str(self.second_operand).lstrip('0') + str(num))
-                    number = str(self.something(num))
+                    number = str(self.add_digit(num))
                     if '.' in number:
                         self.second_operand = number
                         self.disp_number.set(str(self.second_operand))
@@ -208,6 +205,7 @@ class Calculator(tk.Tk):
 
     def operate(self, opr):
         if not self.second_operand:
+            self.disp_number.set(str(self.fetch_screen()).rstrip('.0') or 0)
             self.operator = opr
             if opr == '*' or opr == '/':
                 self.temp_operand = self.first_operand
@@ -220,7 +218,7 @@ class Calculator(tk.Tk):
                 second_operand_temp = Decimal(str(self.second_operand))
                 self.first_operand = eval(f"(first_operand_temp {self.operator} second_operand_temp)")
                 self.operator = opr
-                self.disp_number.set(str(self.first_operand))
+                self.disp_number.set(str(self.first_operand).rstrip('.0') or 0)
                 self.second_operand = None
                 self.sth_on_screen_flag = True
             else:
@@ -260,7 +258,7 @@ class Calculator(tk.Tk):
             if self.second_operand:
                 first_operand_temp = Decimal(str(self.first_operand))
                 second_operand_temp = Decimal(str(self.second_operand))
-                self.disp_number.set(str(eval(f"(first_operand_temp {self.operator} second_operand_temp)")))
+                self.disp_number.set(str(eval(f"(first_operand_temp {self.operator} second_operand_temp)")).rstrip('.0') or 0)
                 self.lbl_operator.configure(text=' ')
                 self.first_operand = self.disp_number.get()
                 self.second_operand = None
@@ -268,7 +266,7 @@ class Calculator(tk.Tk):
             else:
                 first_operand_temp = Decimal(str(self.first_operand))
                 temp_operand_temp = Decimal(str(self.temp_operand))
-                self.disp_number.set(str(eval(f"first_operand_temp {self.operator} temp_operand_temp")))
+                self.disp_number.set(str(eval(f"first_operand_temp {self.operator} temp_operand_temp")).rstrip('.0') or 0)
                 self.lbl_operator.configure(text=' ')
                 self.first_operand = self.disp_number.get()
                 self.second_operand = None
@@ -277,7 +275,7 @@ class Calculator(tk.Tk):
 
         # when user just press "=" button with no operands
         except InvalidOperation:
-            self.disp_number.set(self.first_operand or 0)
+            self.disp_number.set(str(self.first_operand).rstrip('.0') or 0)
 
 
 if __name__ == '__main__':
