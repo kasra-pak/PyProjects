@@ -14,8 +14,8 @@ class Calculator(tk.Tk):
 
         # Display of calculator
         self.frm_disp = tk.Frame(self, bg='red', relief=tk.RIDGE, border=3)
-        self.frm_disp.columnconfigure([*range(11)], weight=1)
-        self.frm_disp.rowconfigure([1, 2], weight=1)
+        self.frm_disp.columnconfigure([*range(1, 10)], weight=1)
+        # self.frm_disp.rowconfigure([0, 1], weight=1)
         self.frm_disp.pack(fill=tk.BOTH)
 
         ## memory usage indicator
@@ -46,8 +46,8 @@ class Calculator(tk.Tk):
                 ['AC', '0', '●', '=']]
 
         self.frm_keypad = tk.Frame(self, bg='grey')
-        self.frm_keypad.rowconfigure([0, 1, 2 ,3, 4], minsize=1, weight=1)
-        self.frm_keypad.columnconfigure([0, 1, 2 ,3, 4], minsize=1, weight=1)
+        self.frm_keypad.rowconfigure([*range(5)], minsize=1, weight=1)
+        self.frm_keypad.columnconfigure([*range(5)], minsize=1, weight=1)
         self.frm_keypad.pack(fill=tk.BOTH, expand=1)
 
         # majority of approaches declare buttons without loops; this makes modifying your code harder
@@ -243,13 +243,15 @@ class Calculator(tk.Tk):
 
     def square_root(self):
         if self.first_operand:
-            self.first_operand = sqrt(self.first_operand)
+            self.first_operand = sqrt(float(self.first_operand))
             # as long as possible keep the results as integers otherwise show them as floating points
             try:
-                self.disp_number.set(int(str(self.first_operand)))
+                self.disp_number.set(int(str(self.first_operand).rstrip('.0')))
             # covers floating point results
             except ValueError:
-                self.disp_number.set(str(self.first_operand))
+                self.disp_number.set(str(self.first_operand).rstrip('.0') or 0)
+            finally:
+                self.sth_on_screen_flag = True
         else:
             pass
 
