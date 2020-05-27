@@ -11,7 +11,6 @@ This means all the functionalities are much as same as the real calculator (CASI
 Fortunately or not this made the coding a little bit harder, sepcially the parts handling the operations and floating points.
 
 # Issues
-* Division operator allways results in floating point number.
 
 # TODOs
 * Upload a picture of the casio calculator
