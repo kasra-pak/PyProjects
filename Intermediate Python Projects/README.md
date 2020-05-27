@@ -1,4 +1,4 @@
-<img src="![calc](https://user-images.githubusercontent.com/56297813/82999330-13cebb80-a01e-11ea-97a4-841fbf452107.jpg)" width="325" height="362" />
+<img src="https://casio.ledudu.com/images/calculs/casio/machines/zoom/HL812L_3d.jpg" width="400" height="247" />
 
 # Topic
 Build a graphical user interface calculator using a library like Tkinter in which we build buttons
